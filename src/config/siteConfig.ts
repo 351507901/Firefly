@@ -42,10 +42,10 @@ const pages = resolvePageToggles({
 
 export const siteConfig: SiteConfig = {
 	// 站点标题
-	title: "Firefly",
+	title: "我的blog",
 
 	// 站点副标题
-	subtitle: "Demo site",
+	subtitle: "site",
 
 	// 站点 URL
 	site_url: "https://blog.sgpli.com",
