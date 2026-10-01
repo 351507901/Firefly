@@ -44,6 +44,7 @@ export type MusicPlayerConfig = {
 		playlist?: Array<{
 			name: string; // 歌曲名称
 			artist: string; // 艺术家
+			category?: "中文" | "日语" | "纯音乐"; // 歌单分类，默认中文
 			url: string; // 音乐文件路径（相对于 public 目录）
 			cover?: string; // 封面图片路径（相对于 public 目录）
 			lrc?: string; // 歌词内容，支持 LRC 格式

@@ -13,6 +13,7 @@ const localPlaylist =
 				return {
 					name: song.name,
 					artist: song.artist,
+					category: song.category ?? "中文",
 					url: isFullUrl(song.url) ? song.url : url(song.url),
 					pic: song.cover
 						? isFullUrl(song.cover)

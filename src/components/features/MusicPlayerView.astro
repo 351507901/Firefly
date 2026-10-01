@@ -133,6 +133,10 @@ const viewConfigStr = JSON.stringify({
         var ITEM_H = 42;
         var OVERSCAN = 8;
         var local = {
+            category: '中文',
+            fullPlaylist: [],
+            fullCurrentIndex: -1,
+            filteredIndices: [],
             isUserScrolling: false,
             scrollTimeout: null,
             currentLrcIndex: -1,
@@ -311,7 +315,7 @@ const viewConfigStr = JSON.stringify({
             itemEl.dataset.index = idx;
             itemEl.setAttribute('role', 'option');
             itemEl.setAttribute('aria-label', track.name + ' - ' + track.artist);
-            itemEl.onclick = function () { mgr.playTrackByIndex(idx); };
+            itemEl.onclick = function () { mgr.playTrackByIndex(local.filteredIndices[idx]); };
 
             // Absolute positioning for virtual scroll
             itemEl.style.position = 'absolute';
@@ -397,8 +401,19 @@ const viewConfigStr = JSON.stringify({
 
         function renderPlaylist(playlist, currentIndex) {
             var vs = local.vs;
-            vs.playlist = playlist;
-            vs.currentIndex = currentIndex;
+            local.fullPlaylist = playlist;
+            local.fullCurrentIndex = currentIndex;
+            local.filteredIndices = [];
+            vs.playlist = playlist.filter(function (track, index) {
+                if ((track.category || '中文') !== local.category) return false;
+                local.filteredIndices.push(index);
+                return true;
+            });
+            vs.currentIndex = local.filteredIndices.indexOf(currentIndex);
+            var empty = widget.querySelector('.music-category-empty');
+            empty.textContent = '暂无' + local.category + '歌曲';
+            empty.classList.toggle('hidden', vs.playlist.length > 0);
+            ui.playlistContainer.style.height = (vs.playlist.length * ITEM_H) + 'px';
             vs.renderedStart = -1;
             vs.renderedEnd = -1;
             vs.renderedEls = {};
@@ -412,6 +427,8 @@ const viewConfigStr = JSON.stringify({
 
         function updatePlaylistActiveUI(currentIndex) {
             var vs = local.vs;
+            local.fullCurrentIndex = currentIndex;
+            currentIndex = local.filteredIndices.indexOf(currentIndex);
             var oldIndex = vs.currentIndex;
             vs.currentIndex = currentIndex;
 
@@ -670,6 +687,17 @@ const viewConfigStr = JSON.stringify({
                     });
                 }
             }
+        });
+
+        widget.querySelectorAll('[data-music-category]').forEach(function (button) {
+            button.addEventListener('click', function () {
+                local.category = button.dataset.musicCategory;
+                widget.querySelectorAll('[data-music-category]').forEach(function (tab) {
+                    tab.setAttribute('aria-pressed', String(tab.dataset.musicCategory === local.category));
+                });
+                ui.playlistContainer.scrollTop = 0;
+                renderPlaylist(local.fullPlaylist, local.fullCurrentIndex);
+            });
         });
 
         // ── Playlist virtual scroll listener ──────────────────────
