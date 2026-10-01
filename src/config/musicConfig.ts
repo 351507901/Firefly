@@ -48,11 +48,84 @@ export const musicPlayerConfig: MusicPlayerConfig = {
 	local: {
 		playlist: [
 			{
-				name: "使一颗心免于哀伤",
-				artist: "知更鸟 / HOYO-MiX / Chevy",
-				url: "/assets/music/使一颗心免于哀伤-哼唱.mp3",
-				cover: "/assets/music/cover/109951169585655912.webp",
-				lrc: "",
+				name: "爱如潮水",
+				artist: "张信哲",
+				url: "/assets/music/张信哲 - 爱如潮水.mp3",
+			},
+			{
+				name: "不要对他说",
+				artist: "张信哲",
+				url: "/assets/music/张信哲 - 不要对他说.mp3",
+			},
+			{
+				name: "过火",
+				artist: "张信哲",
+				url: "/assets/music/张信哲 - 过火.mp3",
+			},
+			{
+				name: "我不难过",
+				artist: "孙燕姿",
+				url: "/assets/music/孙燕姿 - 我不难过.mp3",
+			},
+			{
+				name: "我怀念的",
+				artist: "孙燕姿",
+				url: "/assets/music/孙燕姿 - 我怀念的.mp3",
+			},
+			{
+				name: "太想爱你",
+				artist: "张信哲",
+				url: "/assets/music/张信哲 - 太想爱你.mp3",
+			},
+			{
+				name: "用情",
+				artist: "张信哲",
+				url: "/assets/music/张信哲 - 用情.mp3",
+			},
+			{
+				name: "有一点动心",
+				artist: "张信哲 & 刘嘉玲",
+				url: "/assets/music/张信哲 & 刘嘉玲 - 有一点动心.mp3",
+			},
+			{
+				name: "从开始到现在",
+				artist: "张信哲",
+				url: "/assets/music/张信哲 - 从开始到现在.mp3",
+			},
+			{
+				name: "焚情",
+				artist: "张信哲",
+				url: "/assets/music/张信哲 - 焚情.mp3",
+			},
+			{
+				name: "宽容",
+				artist: "张信哲",
+				url: "/assets/music/张信哲 - 宽容.mp3",
+			},
+			{
+				name: "难以抗拒你容颜",
+				artist: "张信哲",
+				url: "/assets/music/张信哲 - 难以抗拒你容颜.mp3",
+			},
+			{
+				name: "我是真的爱你",
+				artist: "张信哲",
+				url: "/assets/music/张信哲 - 我是真的爱你.mp3",
+			},
+			{
+				name: "爱就一个字",
+				artist: "张信哲",
+				url: "/assets/music/张信哲 - 爱就一个字.mp3",
+			},
+			{
+				name: "别怕我伤心",
+				artist: "张信哲",
+				url: "/assets/music/张信哲 - 别怕我伤心.mp3",
+			},
+			{
+				name: "I Believe",
+				artist: "张信哲",
+				url: "/assets/music/张信哲 - I Believe.mp3",
 			},
 		],
 	},
