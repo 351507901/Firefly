@@ -517,6 +517,7 @@ const viewConfigStr = JSON.stringify({
                 return;
             }
 
+            updateCategory(s.category);
             renderPlaylist(s.playlist, s.currentIndex);
             if (s.track) updateTrackUI(s.track);
             updatePlayStateUI(s.isPlaying);
@@ -689,14 +690,22 @@ const viewConfigStr = JSON.stringify({
             }
         });
 
+        function updateCategory(category) {
+            local.category = category || '中文';
+            widget.querySelectorAll('[data-music-category]').forEach(function (tab) {
+                tab.setAttribute('aria-pressed', String(tab.dataset.musicCategory === local.category));
+            });
+            ui.playlistContainer.scrollTop = 0;
+            renderPlaylist(local.fullPlaylist, local.fullCurrentIndex);
+        }
+
+        on('fm:category', function (e) {
+            updateCategory(e.detail.category);
+        });
+
         widget.querySelectorAll('[data-music-category]').forEach(function (button) {
             button.addEventListener('click', function () {
-                local.category = button.dataset.musicCategory;
-                widget.querySelectorAll('[data-music-category]').forEach(function (tab) {
-                    tab.setAttribute('aria-pressed', String(tab.dataset.musicCategory === local.category));
-                });
-                ui.playlistContainer.scrollTop = 0;
-                renderPlaylist(local.fullPlaylist, local.fullCurrentIndex);
+                mgr.setCategory(button.dataset.musicCategory);
             });
         });
 

@@ -107,6 +107,7 @@ const managerConfigStr = JSON.stringify({
     var loadVersion = 0; // incremented on each loadTrack to discard stale play() results
     var state = {
         playlist: [],
+        category: '中文',
         currentIndex: 0,
         isPlaying: false,
         playMode: 0, // 0: list, 1: one, 2: random
@@ -234,6 +235,11 @@ const managerConfigStr = JSON.stringify({
         if (index < 0 || index >= state.playlist.length) return;
         state.currentIndex = index;
         var track = state.playlist[index];
+        var category = track.category || '中文';
+        if (state.category !== category) {
+            state.category = category;
+            emit('fm:category', { category: category });
+        }
         var ver = ++loadVersion;
 
         if (errorSkipTimeout) {
@@ -267,6 +273,9 @@ const managerConfigStr = JSON.stringify({
 
     // ── Playback controls ────────────────────────────────────
     function togglePlay() {
+        var indices = categoryIndices();
+        if (!indices.length) return;
+        if (indices.indexOf(state.currentIndex) === -1) { loadTrack(indices[0], true); return; }
         if (audio.paused) {
             audio.play().then(function () {
                 state.isPlaying = true;
@@ -282,29 +291,52 @@ const managerConfigStr = JSON.stringify({
         }
     }
 
+    function categoryIndices() {
+        return state.playlist.reduce(function (indices, track, index) {
+            if ((track.category || '中文') === state.category) indices.push(index);
+            return indices;
+        }, []);
+    }
+
+    function setCategory(category) {
+        if (state.category === category) return;
+        state.category = category;
+        var indices = categoryIndices();
+        emit('fm:category', { category: category });
+        if (indices.indexOf(state.currentIndex) === -1) {
+            var wasPlaying = state.isPlaying;
+            if (indices.length) loadTrack(indices[0], wasPlaying);
+            else {
+                audio.pause();
+                state.isPlaying = false;
+                emit('fm:play-state', { isPlaying: false });
+            }
+        }
+    }
+
     function playNext(auto) {
-        if (state.playMode === 1 && auto) {
+        var indices = categoryIndices();
+        if (!indices.length) return;
+        if (state.playMode === 1 && auto && indices.indexOf(state.currentIndex) !== -1) {
             audio.currentTime = 0;
             audio.play();
             return;
         }
-        var nextIndex;
-        if (state.playMode === 2) {
-            nextIndex = Math.floor(Math.random() * state.playlist.length);
-        } else {
-            nextIndex = (state.currentIndex + 1) % state.playlist.length;
-        }
-        loadTrack(nextIndex, true);
+        var position = indices.indexOf(state.currentIndex);
+        var next = state.playMode === 2
+            ? Math.floor(Math.random() * indices.length)
+            : (position + 1) % indices.length;
+        loadTrack(indices[next], true);
     }
 
     function playPrev() {
-        var prevIndex;
-        if (state.playMode === 2) {
-            prevIndex = Math.floor(Math.random() * state.playlist.length);
-        } else {
-            prevIndex = (state.currentIndex - 1 + state.playlist.length) % state.playlist.length;
-        }
-        loadTrack(prevIndex, true);
+        var indices = categoryIndices();
+        if (!indices.length) return;
+        var position = indices.indexOf(state.currentIndex);
+        var prev = state.playMode === 2
+            ? Math.floor(Math.random() * indices.length)
+            : (position < 0 ? indices.length - 1 : (position - 1 + indices.length) % indices.length);
+        loadTrack(indices[prev], true);
     }
 
     function setPlayMode(mode) {
@@ -418,10 +450,12 @@ const managerConfigStr = JSON.stringify({
                 // Apply volume
                 audio.volume = state.volume;
 
-                var startIndex = 0;
-                if (state.playMode === 2) {
-                    startIndex = Math.floor(Math.random() * state.playlist.length);
+                var indices = categoryIndices();
+                if (!indices.length) {
+                    state.category = state.playlist[0].category || '中文';
+                    indices = categoryIndices();
                 }
+                var startIndex = indices[state.playMode === 2 ? Math.floor(Math.random() * indices.length) : 0];
 
                 state.initialized = true;
 
@@ -466,6 +500,7 @@ const managerConfigStr = JSON.stringify({
             return {
                 playlist: state.playlist,
                 currentIndex: state.currentIndex,
+                category: state.category,
                 track: track,
                 isPlaying: state.isPlaying,
                 playMode: state.playMode,
@@ -483,6 +518,7 @@ const managerConfigStr = JSON.stringify({
                 config: config
             };
         },
+        setCategory: setCategory,
         togglePlay: togglePlay,
         playNext: function () { playNext(false); },
         playPrev: playPrev,
