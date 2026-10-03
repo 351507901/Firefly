@@ -1,0 +1,67 @@
+---
+import { getCollection } from "astro:content";
+import WidgetLayout from "@/components/common/WidgetLayout.astro";
+import { recentUpdatesConfig } from "@/config/recentUpdatesConfig";
+import type { WidgetComponentConfig } from "@/types/config";
+import { getPostUrlBySlug, url } from "@/utils/url-utils";
+
+interface Props {
+	class?: string;
+	style?: string;
+	widgetConfig?: WidgetComponentConfig;
+}
+const { class: className, style, widgetConfig } = Astro.props;
+const posts = await getCollection("posts", ({ data }) => !data.draft);
+const updates = [
+	...recentUpdatesConfig.entries.map((entry) => ({
+		...entry,
+		href: url(entry.href),
+		timestamp: Date.parse(`${entry.date}T00:00:00+08:00`),
+	})),
+	...posts.map((post) => {
+		const changed = post.data.updated && post.data.updated > post.data.published;
+		const date = changed ? post.data.updated! : post.data.published;
+		return {
+			title: post.data.title,
+			date: date.toISOString().slice(0, 10),
+			timestamp: date.getTime(),
+			kind: changed ? "文章更新" : "新文章",
+			href: getPostUrlBySlug(post.id),
+		};
+	}),
+]
+	.filter((entry) => Number.isFinite(entry.timestamp) && entry.timestamp <= Date.now())
+	.sort((a, b) => b.timestamp - a.timestamp)
+	.slice(0, recentUpdatesConfig.limit);
+---
+
+<WidgetLayout name="最近更新" id="recent-updates" showTitle={widgetConfig?.showTitle !== false} class={className} style={style}>
+  <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-3">文章与歌单的新变化</p>
+  {updates.length ? (
+    <ol class="updates-list">
+      {updates.map((entry) => (
+        <li>
+          <a href={entry.href} class="update-link">
+            <div class="update-meta">
+              <span class="update-kind">{entry.kind}</span>
+              <time datetime={entry.date}>{entry.date}</time>
+            </div>
+            <span class="update-title">{entry.title}</span>
+          </a>
+        </li>
+      ))}
+    </ol>
+  ) : <p class="text-sm text-neutral-500 py-3">暂时没有更新</p>}
+  <a href={url("/archive/")} class="btn-plain rounded-lg w-full mt-3 py-2 text-sm flex justify-center">查看文章归档 →</a>
+</WidgetLayout>
+
+<style>
+  .updates-list { list-style: none; padding: 0; margin: 0; }
+  .updates-list li + li { border-top: 1px solid color-mix(in srgb, var(--primary) 10%, transparent); }
+  .update-link { display: block; border-radius: .65rem; padding: .8rem .5rem; transition: background .15s; }
+  .update-link:hover, .update-link:focus-visible { background: color-mix(in srgb, var(--primary) 8%, transparent); }
+  .update-link:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+  .update-meta { display: flex; align-items: center; justify-content: space-between; gap: .5rem; font-size: .75rem; color: var(--primary); margin-bottom: .45rem; }
+  .update-kind { background: color-mix(in srgb, var(--primary) 10%, transparent); padding: .15rem .45rem; border-radius: .35rem; }
+  .update-title { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: .9rem; font-weight: 500; line-height: 1.6; color: var(--deep-text); overflow-wrap: anywhere; }
+</style>
