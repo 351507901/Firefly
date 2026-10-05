@@ -1,0 +1,43 @@
+---
+import PostCard from "@/components/layout/PostCard.astro";
+import { getSortedPosts } from "@/utils/content-utils";
+import { getPostUrlBySlug, url } from "@/utils/url-utils";
+
+const posts = await getSortedPosts();
+const featured = posts.slice(0, 2);
+const featuredIds = new Set(featured.map((post) => post.id));
+const latest = posts
+	.filter((post) => !featuredIds.has(post.id))
+	.sort((a, b) => b.data.published.getTime() - a.data.published.getTime())
+	.slice(0, 5);
+const sections = [
+	{ title: "精选文章", posts: featured },
+	{ title: "最新文章", posts: latest },
+];
+---
+
+<div class="home-posts">
+  {sections.filter((section) => section.posts.length).map((section) => (
+    <section class="home-section list-mode">
+      <h2 class="text-90">{section.title}</h2>
+      <div class="flex flex-col gap-4">
+        {section.posts.map((entry, index) => (
+          <PostCard entry={entry} title={entry.data.title} tags={entry.data.tags}
+            category={entry.data.category} published={entry.data.published}
+            updated={entry.data.updated} url={getPostUrlBySlug(entry.id)}
+            image={entry.data.image} description={entry.data.description}
+            draft={entry.data.draft} pinned={entry.data.pinned} style=""
+            password={!!entry.data.password} loading={index < 2 ? "eager" : "lazy"} />
+        ))}
+      </div>
+    </section>
+  ))}
+  <a class="archive-link card-base" href={url("/archive/")}>查看全部文章 <span aria-hidden="true">→</span></a>
+</div>
+
+<style>
+  .home-section { margin-bottom: 2rem; }
+  h2 { font-size: 1.35rem; font-weight: 700; margin: 0.5rem 0 1rem; padding-inline: 1rem; }
+  .archive-link { display: flex; justify-content: center; align-items: center; gap: 0.75rem; padding: 1rem; color: var(--primary); font-weight: 600; }
+  .archive-link:hover { background: var(--btn-regular-bg-hover); }
+</style>

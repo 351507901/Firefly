@@ -2,6 +2,7 @@
 import type { GetStaticPaths } from "astro";
 import Pagination from "@/components/common/Pagination.astro";
 import PostPage from "@/components/layout/PostPage.astro";
+import HomePosts from "@/components/layout/HomePosts.astro";
 import { siteConfig } from "@/config";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
@@ -28,9 +29,9 @@ const heading =
 ---
 
 <MainGridLayout heading={heading}>
-  <PostPage page={page} />
+  {page.currentPage === 1 ? <HomePosts /> : <PostPage page={page} />}
   {
-    page.total > page.size && (
+    page.currentPage !== 1 && page.total > page.size && (
       <Pagination
         class="mx-auto onload-animation"
         page={page}

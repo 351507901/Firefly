@@ -1,5 +1,33 @@
 /* Layout 基础布局样式（从 Layout.astro 内联 <style is:global> 迁出） */
 
+/* 根据已替换的归档内容切换布局，兼容 Swup 与直接访问。 */
+body:has(archive-panel) {
+  --banner-height-non-home: 18rem !important;
+}
+body:has(archive-panel) #main-grid {
+  grid-template-columns: minmax(0, 1fr);
+}
+body:has(archive-panel) #main-grid > #left-sidebar-wrapper,
+body:has(archive-panel) #main-grid > #left-sidebar-dynamic,
+body:has(archive-panel) #main-grid > #right-sidebar-static,
+body:has(archive-panel) #main-grid > #right-sidebar-dynamic,
+body:has(archive-panel) #mobile-bottom-sidebar {
+  display: none;
+}
+body:has(archive-panel) #main-grid > #content-column {
+  width: 100%;
+  max-width: 100%;
+}
+body:has(archive-panel) #content-panel-inner {
+  max-width: 76rem;
+}
+/* 小屏或无横幅模式仍保留正文标题。 */
+@media (min-width: 1024px) {
+  html[data-wallpaper-mode="banner"] body:has(archive-panel) .archive-heading h2 {
+    display: none;
+  }
+}
+
 @layer components {
   /* 内容面板：单一 top 属性定位（--content-top 由模式/首页/设备在解析期解析） */
   .content-panel {
