@@ -1,18 +1,22 @@
 ---
+import { processCoverImageSync, getApiUrlList } from "@/utils/image-utils";
+import CoverImage from "@/components/common/CoverImage.astro";
+import { getFileDirFromPath } from "@/utils/url-utils";
 import { siteConfig } from "@/config";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
-import { getSortedPostsList } from "@/utils/content-utils";
+import { getSortedPosts } from "@/utils/content-utils";
 import { getPostUrlBySlug, url } from "@/utils/url-utils";
 
 // 归档列表：全量按年分组，服务端渲染。筛选（?tag=/?category=/?uncategorized）
 // 与年份折叠由客户端脚本处理——数据本身在构建期已全部就绪。
-const sortedPostsList = await getSortedPostsList();
+const sortedPostsList = await getSortedPosts();
 
 // 严格按发布时间倒序（不受置顶影响），镜像原 Svelte 版行为
 const posts = sortedPostsList
 	.slice()
-	.sort((a, b) => b.data.published.getTime() - a.data.published.getTime());
+	.sort((a, b) => b.data.published.getTime() - a.data.published.getTime())
+	.map((post) => ({ ...post, cover: processCoverImageSync(post.data.image, post.id) }));
 
 // 按年份分组
 const grouped = new Map<number, typeof posts>();
@@ -32,12 +36,9 @@ const collapseAllButFirst = foldArticle && groups.length > 1;
 function formatDate(date: Date) {
 	const month = (date.getMonth() + 1).toString().padStart(2, "0");
 	const day = date.getDate().toString().padStart(2, "0");
-	return `${month}-${day}`;
+	return `${date.getFullYear()}-${month}-${day}`;
 }
 
-function formatTag(tagList: string[]) {
-	return tagList.map((t) => `#${t}`).join(" ");
-}
 
 // 传给客户端脚本的 i18n 文案与配置
 const i18nStrings = {
@@ -53,9 +54,13 @@ const foldOnFilter = collapseAllButFirst;
 ---
 
 <archive-panel
-  class="card-base px-8 py-6"
+  class="card-base archive-card"
   data-fold={foldOnFilter ? "true" : "false"}
 >
+  <header class="archive-heading">
+    <h2>{i18n(I18nKey.archive)}</h2>
+    <p class="text-50"><span id="archive-total-count">{posts.length}</span> <span>{i18n(I18nKey.postsCount)}</span></p>
+  </header>
   {/* 筛选头部：默认隐藏，客户端在有筛选时填充并显示 */}
   <div id="archive-filter-header" class="mb-5 hidden">
     <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
@@ -76,29 +81,12 @@ const foldOnFilter = collapseAllButFirst;
     return (
       <div class="archive-year-block" data-year={group.year} data-count={group.posts.length}>
         <button
-          class="archive-year-toggle flex flex-row w-full items-center h-15 cursor-pointer rounded-lg
-                 hover:bg-(--btn-plain-bg-hover) transition-colors group/yr"
+          class="archive-year-toggle text-75"
           aria-expanded={collapsed ? "false" : "true"}
         >
-          <div class="w-[15%] md:w-[10%] transition text-2xl font-bold text-right text-75
-                      group-hover/yr:text-(--primary)">
-            {group.year}
-          </div>
-          <div class="w-[15%] md:w-[10%]">
-            <div class="h-3 w-3 bg-none rounded-full outline-(--primary) mx-auto
-                        -outline-offset-2 z-50 outline-3"></div>
-          </div>
-          <div class="w-[70%] md:w-[80%] transition text-left text-50 flex items-center gap-2
-                      group-hover/yr:text-(--primary)">
-            <span class="archive-year-count">{group.posts.length}</span>
-            {" "}
-            <span class="archive-year-count-label">{i18n(group.posts.length === 1 ? I18nKey.postCount : I18nKey.postsCount)}</span>
-            <span class="archive-arrow" style={collapsed ? "transform: rotate(-90deg)" : ""}>
-              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
-              </svg>
-            </span>
-          </div>
+          <span class="archive-year-title">{group.year}</span>
+          <span class="archive-year-meta text-50"><span class="archive-year-count">{group.posts.length}</span> <span class="archive-year-count-label">{i18n(I18nKey.postsCount)}</span></span>
+          <span class="archive-arrow" style={collapsed ? "transform: rotate(-90deg)" : ""} aria-hidden="true">⌄</span>
         </button>
 
         <div class="archive-year-content" hidden={collapsed}>
@@ -106,45 +94,23 @@ const foldOnFilter = collapseAllButFirst;
             <a
               href={getPostUrlBySlug(post.id)}
               aria-label={post.data.title}
-              class="archive-post group btn-plain block! h-10 w-full rounded-lg hover:text-[initial]"
+              class="archive-post"
               data-tags={JSON.stringify(post.data.tags || [])}
               data-category={post.data.category || ""}
             >
-              <div class="flex flex-row justify-start items-center h-full">
-                {/* date */}
-                <div class="w-[15%] md:w-[10%] transition text-sm text-right text-50">
+              <div class="archive-thumbnail">
+                {post.cover ? (
+                  <CoverImage src={post.cover} apiUrls={getApiUrlList(post.data.image, post.id)} basePath={getFileDirFromPath(post.filePath || "")} alt="" class="w-full h-full" preview={true} />
+                ) : (
+                  <span class="archive-placeholder" aria-hidden="true">✦</span>
+                )}
+              </div>
+              <div class="archive-post-info">
+                <time datetime={post.data.published.toISOString()} class="archive-date text-50">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 11h18"/></svg>
                   {formatDate(post.data.published)}
-                </div>
-
-                {/* dot and line */}
-                <div class="w-[15%] md:w-[10%] relative dash-line h-full flex items-center">
-                  <div class="transition-all mx-auto w-1 h-1 rounded-sm group-hover:h-5
-                              bg-[oklch(0.5_0.05_var(--hue))] group-hover:bg-(--primary)
-                              outline-4 z-50 outline-(--card-bg)
-                              group-hover:outline-(--btn-plain-bg-hover)
-                              group-active:outline-(--btn-plain-bg-active)"></div>
-                </div>
-
-                {/* post title */}
-                <div class="w-[70%] md:max-w-[65%] md:w-[65%] text-left font-bold
-                            group-hover:translate-x-1 transition-all group-hover:text-(--primary)
-                            text-75 pr-8 whitespace-nowrap text-ellipsis overflow-hidden flex items-center gap-2">
-                  {post.data.category && (
-                    <span class="shrink-0 inline-block text-xs font-medium px-1.5 py-0.5 rounded-sm
-                                 bg-[oklch(0.95_0.025_var(--hue))] dark:bg-[oklch(0.25_0.025_var(--hue))]
-                                 text-(--primary) group-hover:bg-(--primary) group-hover:text-white!
-                                 transition-colors">
-                      {post.data.category}
-                    </span>
-                  )}
-                  <span class="truncate">{post.data.title}</span>
-                </div>
-
-                {/* tag list */}
-                <div class="hidden md:block md:w-[15%] text-left text-sm transition
-                            whitespace-nowrap text-ellipsis overflow-hidden text-30">
-                  {formatTag(post.data.tags || [])}
-                </div>
+                </time>
+                <span class="archive-post-title text-75">{post.data.title}</span>
               </div>
             </a>
           ))}
@@ -155,11 +121,32 @@ const foldOnFilter = collapseAllButFirst;
 </archive-panel>
 
 <style>
-  archive-panel {
-    display: block;
-  }
-  .archive-arrow {
-    display: inline-flex;
+  archive-panel { display: block; }
+  .archive-card { padding: 2.5rem; }
+  .archive-heading { margin-bottom: 2.5rem; }
+  .archive-heading h2 { font-size: 2rem; font-weight: 700; color: var(--deep-text); margin-bottom: .8rem; }
+  .archive-heading p { display: flex; gap: .35rem; }
+  .archive-year-block + .archive-year-block { margin-top: 2rem; }
+  .archive-year-toggle { display: flex; align-items: center; gap: .75rem; cursor: pointer; margin-bottom: 1.25rem; border-radius: .5rem; }
+  .archive-year-title { font-size: 1.6rem; font-weight: 700; }
+  .archive-year-meta { font-size: .85rem; }
+  .archive-arrow { display: inline-flex; }
+  .archive-post { display: flex; align-items: center; gap: 1.5rem; padding: .4rem 0; margin-bottom: 1rem; border-radius: .6rem; }
+  .archive-post[hidden], .archive-year-content[hidden], .archive-year-block[hidden] { display: none; }
+  .archive-thumbnail { flex: 0 0 180px; width: 180px; aspect-ratio: 12 / 7; border-radius: .6rem; overflow: hidden; background: color-mix(in srgb, var(--primary) 12%, var(--card-bg)); }
+  .archive-placeholder { display: grid; place-items: center; height: 100%; font-size: 2rem; color: var(--primary); }
+  .archive-post-info { min-width: 0; }
+  .archive-date { display: flex; align-items: center; gap: .5rem; font-size: .95rem; margin-bottom: .7rem; }
+  .archive-post-title { font-size: 1.15rem; line-height: 1.6; overflow-wrap: anywhere; transition: color .15s; }
+  .archive-post:hover .archive-post-title { color: var(--primary); }
+  .archive-post:focus-visible, .archive-year-toggle:focus-visible { outline: 2px solid var(--primary); outline-offset: 4px; }
+  @media (max-width: 640px) {
+    .archive-card { padding: 1.25rem; }
+    .archive-heading { margin-bottom: 1.5rem; }
+    .archive-thumbnail { flex-basis: 104px; width: 104px; }
+    .archive-post { gap: .9rem; }
+    .archive-date { font-size: .75rem; margin-bottom: .35rem; }
+    .archive-post-title { font-size: .95rem; }
   }
 </style>
 
@@ -248,6 +235,7 @@ const foldOnFilter = collapseAllButFirst;
       });
 
       // 填充并显示筛选头部
+      this.querySelector("#archive-total-count").textContent = String(totalVisible);
       this.renderFilterHeader(tags, categories, uncategorized, totalVisible);
     }
 
