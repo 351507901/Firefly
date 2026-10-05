@@ -1,0 +1,40 @@
+---
+import { siteConfig, profileConfig } from "@/config";
+import ConfigCarrier from "@/components/layout/ConfigCarrier.astro";
+import MusicManager from "@/components/features/MusicManager.astro";
+import MusicPlayerView from "@/components/features/MusicPlayerView.astro";
+import FancyboxManager from "@/components/features/FancyboxManager.astro";
+import CodeGroupManager from "@/components/features/CodeGroupManager.astro";
+import GithubCardManager from "@/components/features/GithubCardManager.astro";
+import "@/styles/main.css";
+import "@/styles/variables.styl";
+import "@/styles/expressive-code.css";
+import "@rehype-callouts-theme";
+import "@/styles/flec-theme.css";
+interface Props { title?: string; description?: string; lang?: string; setOGTypeArticle?: boolean; postSlug?: string; postCoverImage?: string; ogImageWidth?: number; ogImageHeight?: number; ogImageAlt?: string; }
+const { title, description = siteConfig.description, lang = "zh-CN", setOGTypeArticle = false, postCoverImage } = Astro.props;
+const pageTitle = title ? `${title} | ${siteConfig.title}` : `${siteConfig.title} - ${siteConfig.subtitle}`;
+const canonical = new URL(Astro.url.pathname, siteConfig.site_url).href;
+---
+<!doctype html>
+<html lang={lang || "zh-CN"} data-theme="light" style="--hue:165;--config-hue:165;--page-width:75rem;--radius-large:8px;--content-delay:0ms">
+  <head>
+    <meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>{pageTitle}</title><meta name="description" content={description} /><meta name="author" content={profileConfig.name} />
+    <link rel="canonical" href={canonical} /><link rel="icon" href={siteConfig.favicon[0]?.src || "/favicon.ico"} />
+    <link rel="stylesheet" href="/flec/remixicon/remixicon.css" />
+    <link rel="alternate" type="application/rss+xml" href="/rss.xml" title={siteConfig.title} />
+    <link rel="alternate" type="application/atom+xml" href="/atom.xml" title={siteConfig.title} />
+    <meta property="og:title" content={pageTitle} /><meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} /><meta property="og:type" content={setOGTypeArticle ? "article" : "website"} />
+    {postCoverImage && <meta property="og:image" content={postCoverImage} />}
+    <script is:inline>try { const dark = localStorage.getItem('theme') === 'dark'; document.documentElement.dataset.theme = dark ? 'dark' : 'light'; document.documentElement.classList.toggle('dark', dark); } catch {}</script>
+    <slot name="head" />
+  </head>
+  <body class="flec-site">
+    <ConfigCarrier />
+    <div class="flec-background" aria-hidden="true"></div>
+    <slot />
+    <MusicManager /><MusicPlayerView /><FancyboxManager /><CodeGroupManager /><GithubCardManager />
+  </body>
+</html>

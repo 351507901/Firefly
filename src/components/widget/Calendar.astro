@@ -121,7 +121,7 @@ const postUrlPrefix = url("/posts/");
   </div>
 </WidgetLayout>
 
-<script is:inline data-swup-ignore-script define:vars={{ monthNames, weekDays, yearText, currentLang, calendarDataUrl, postUrlPrefix, heatmapWeekTemplate }}>
+<script is:inline define:vars={{ monthNames, weekDays, yearText, currentLang, calendarDataUrl, postUrlPrefix, heatmapWeekTemplate }}>
   // State variables
   let displayYear = new Date().getFullYear();
   let displayMonth = new Date().getMonth();
@@ -607,14 +607,7 @@ const postUrlPrefix = url("/posts/");
   // 页面加载时渲染日历
   initCalendar();
 
-  // 防止 Swup 切页重跑脚本时重复注册监听器（此脚本的 data-swup-ignore-script 在 define:vars 构建时可能丢失）
-  if (!window.__calendarInit) {
-    window.__calendarInit = true;
-    // 页面切换时重新渲染
-    document.addEventListener("swup:contentReplaced", () => {
-      setTimeout(initCalendar, 100);
-    });
-  }
+  // Swup reruns this inline script for each new calendar widget.
 </script>
 
 <style>

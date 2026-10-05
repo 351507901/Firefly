@@ -1,39 +1,26 @@
 ---
-
 import { getEntry, render } from "astro:content";
-import Markdown from "@components/common/Markdown.astro";
-import { profileConfig } from "@/config/profileConfig";
-import { siteConfig } from "@/config/siteConfig";
-import I18nKey from "@/i18n/i18nKey";
-import { i18n } from "@/i18n/translation";
+import Markdown from "@/components/common/Markdown.astro";
 import MainGridLayout from "@/layouts/MainGridLayout.astro";
-import { getAuthorAvatarUrl } from "@/utils/schema-image";
-import { buildProfilePage } from "@/utils/schema-utils";
-
-const aboutPost = await getEntry("spec", "about");
-
-if (!aboutPost) {
-	throw new Error("About page content not found");
-}
-
-const { Content } = await render(aboutPost);
-
-const avatarUrl = await getAuthorAvatarUrl();
-const jsonLd = buildProfilePage({
-	site: siteConfig.site_url,
-	profileConfig,
-	authorUrl: Astro.url.toString(),
-	avatarUrl,
-	description: profileConfig.bio,
-});
+import ImageWrapper from "@/components/common/ImageWrapper.astro";
+import { siteConfig, profileConfig } from "@/config";
+import flecTheme from "@/config/flecTheme.json";
+import { getSortedPosts, getCategoryList, getTagList } from "@/utils/content-utils";
+import "@/styles/flec-about.css";
+const theme = flecTheme.config;
+const about = await getEntry("spec", "about");
+if (!about) throw new Error("About page content not found");
+const { Content } = await render(about);
+const [posts,categories,tags] = await Promise.all([getSortedPosts(),getCategoryList(),getTagList()]);
+const fields = [{label:"姓名",value:profileConfig.name,color:"#43a6c6"},{label:"兴趣",value:"编程与创作",color:"#43c66f"},{label:"博客",value:siteConfig.title,color:"#c643b3"}];
 ---
-<MainGridLayout title={i18n(I18nKey.about)} description={i18n(I18nKey.about)}>
-    <script is:inline slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
-    <div class="flex w-full rounded-(--radius-large) overflow-hidden relative min-h-32">
-        <div class="card-base z-10 px-9 py-6 relative w-full ">
-            <Markdown class="mt-2">
-                <Content />
-            </Markdown>
-        </div>
-    </div>
+<MainGridLayout title="关于" description={profileConfig.bio}>
+ <div id="about-page">
+  <div class="Personal-Introduction"><div class="PI-box-left"><h1 class="title">你好！</h1><div class="title">我是 {profileConfig.name}</div><div class="describe">{theme.about_describe}</div><span class="describe-tips">{profileConfig.bio}</span><div class="PI-button"><a href="#one">博主信息</a><a href="#two">本站信息</a></div></div><div class="PI-box-right"><ImageWrapper src={profileConfig.avatar || "/flec/avatar.webp"} alt={profileConfig.name} /></div></div>
+  <div id="one"><div class="h1-box"><div class="box-top"><span>01</span><h2 class="title-h1">博主信息</h2></div><div class="about-layout box-bottom">{profileConfig.name}</div></div><div class="information"><div class="about-layout Introduction"><div class="bar-box-row">{fields.map(field => <div class="bar-box"><span class="tips">{field.label}</span><div class="title" style={`color:${field.color}`}>{field.value}</div></div>)}</div></div></div></div>
+  <div class="Philosophical"><div class="about-layout P-box-left"><div class="tips">记录</div><div class="title">保持好奇</div><div class="title" style="color:#56a178">步履不停</div><div class="tips-bottom">分享技术，记录生活</div></div><div class="about-layout P-box-right"><div class="tips">座右铭</div>{theme.about_motto_main.map((line,index) => <span class="title" style={`opacity:${index === 0 ? .6 : 1}`}>{line.value}</span>)}<div class="tips-bottom">{theme.about_motto_sub}</div></div></div>
+  <div class="Platform"><div class="about-layout Socialize"><div class="tips">账号</div><h2 class="title">联系方式</h2><div class="S-box">{profileConfig.links.map(link => <a class="btn-layout" href={link.url}>{link.name}</a>)}</div></div><div class="about-layout Creation"><div class="tips">订阅</div><h2 class="title">创作平台</h2><div class="S-box"><a class="btn-layout" href="/rss.xml">RSS</a><a class="btn-layout" href="/atom.xml">Atom</a></div></div></div>
+  <div id="two"><div class="h1-box"><div class="box-top"><span>02</span><h2 class="title-h1">本站信息</h2></div><div class="about-layout box-bottom">{siteConfig.title}</div></div><div class="information"><div class="about-layout Version">{[{name:"Astro",version:"7.3.2"},{name:"Firefly",version:"6.16.8"},{name:"FlecBlog",version:"Design"}].map(item => <div class="V-box"><div class="title">{item.name}</div><div class="tips-v">{item.version}</div></div>)}</div><div class="about-layout Statistics"><span>{posts.length}篇文章</span><span>{categories.length}个分类</span><span>{tags.length}个标签</span></div></div></div>
+  <div class="about-layout content"><div class="tips">心路历程</div><h2 class="title">关于本站的介绍</h2><Markdown class="mt-4"><Content /></Markdown></div>
+ </div>
 </MainGridLayout>

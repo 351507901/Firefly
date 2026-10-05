@@ -1,0 +1,40 @@
+---
+import type { MarkdownHeading } from "astro";
+import { Icon } from "astro-icon/components";
+import Music from "@/components/widget/Music.astro";
+import FlecWebInfo from "./FlecWebInfo.astro";
+import Calendar from "@/components/widget/Calendar.astro";
+import ImageWrapper from "@/components/common/ImageWrapper.astro";
+import { profileConfig, musicPlayerConfig } from "@/config";
+import { getSortedPosts, getCategoryList, getTagList } from "@/utils/content-utils";
+import { getTagUrl, url } from "@/utils/url-utils";
+interface Props { headings?: MarkdownHeading[]; encrypted?: boolean; }
+const { headings = [], encrypted = false } = Astro.props;
+const [posts, categories, tags] = await Promise.all([getSortedPosts(), getCategoryList(), getTagList()]);
+const archives = new Map<string, number>();
+for (const post of posts) { const month = post.data.published.toISOString().slice(0,7); archives.set(month, (archives.get(month) || 0) + 1); }
+---
+<aside class="flec-sidebar" aria-label="博客侧栏">
+  <section class="flec-card flec-author">
+    <div class="flec-avatar"><ImageWrapper src={profileConfig.avatar || "/flec/avatar.webp"} alt={profileConfig.name} basePath="/" /></div>
+    <div class="flec-author-name">{profileConfig.name}</div><div>{profileConfig.bio}</div>
+    <div class="flec-site-data">
+      <a href={url("/archive/")}>文章<strong>{posts.length}</strong></a>
+      <a href={url("/categories/")}>分类<strong>{categories.length}</strong></a>
+      <a href={url("/tags/")}>标签<strong>{tags.length}</strong></a>
+    </div>
+    <a href={url("/subscribe/")} class="flec-subscribe">订阅本站</a>
+    <div class="flec-social">{profileConfig.links.map(link => <a href={link.url} aria-label={link.name}><Icon name={link.icon} /></a>)}</div>
+  </section>
+  <section class="flec-card"><h2 class="flec-widget-title"><i class="ri-megaphone-fill" aria-hidden="true" /> 公告</h2><p>欢迎来到我的博客<br /><strong>记录技术、生活与思考</strong><br /><span style="color:#e03131">内容持续更新中</span><br /><a href={url("/about/")}>了解更多</a></p></section>
+  {musicPlayerConfig.showInSidebar !== false && <div class="flec-music"><Music /></div>}
+  <div class="flec-sidebar-sticky">
+    {!encrypted && headings.length > 0 ? <section class="flec-card flec-toc"><h2 class="flec-widget-title">☷ 目录</h2><nav>{headings.map(h => <a href={`#${h.slug}`} style={`padding-left:${Math.max(0,h.depth-2)*12}px`}>{h.text}</a>)}</nav></section> : <>
+      <section class="flec-card"><h2 class="flec-widget-title"><i class="ri-folder-line" aria-hidden="true" /> 分类 <a href={url("/categories/")} aria-label="全部分类">›</a></h2>{categories.slice(0,8).map(cat => <a class="flec-list-link" href={cat.url}><span>{cat.name}</span><span>{cat.count}</span></a>)}</section>
+      <section class="flec-card"><h2 class="flec-widget-title"><i class="ri-price-tag-3-line" aria-hidden="true" /> 标签 <a href={url("/tags/")} aria-label="全部标签">›</a></h2><div class="flec-tag-cloud">{tags.map((tag,index) => <a href={getTagUrl(tag.name)} style={`font-size:${0.85+Math.min(tag.count,6)*0.08}rem;color:${["#49b1f5","#999","#43a6c6","#c69043"][index%4]}`}>{tag.name}</a>)}</div></section>
+      <section class="flec-card"><h2 class="flec-widget-title">▣ 归档 <a href={url("/archive/")} aria-label="全部归档">›</a></h2>{Array.from(archives).sort((a,b) => b[0].localeCompare(a[0])).slice(0,8).map(([month,count]) => <a class="flec-list-link" href={url(`/archive/?month=${month}`)}><span>{month.replace("-","年")}月</span><span>{count}</span></a>)}</section>
+      <div class="flec-calendar"><Calendar widgetConfig={{ type: "calendar", enable: true, position: "sticky", showTitle: false }} /></div>
+      <FlecWebInfo />
+    </>}
+  </div>
+</aside>

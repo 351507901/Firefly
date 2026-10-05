@@ -1,0 +1,442 @@
+{
+  "config": {
+    "about_creation": [
+      {
+        "name": "掘金",
+        "url": "https://juejin.cn"
+      },
+      {
+        "name": "知乎",
+        "url": "https://zhihu.com"
+      }
+    ],
+    "about_describe": "持续学习的终身践行者，用代码和文字构建小小世界。在这里记录技术洞见、思考碎片和生活灵感。保持好奇，步履不停。",
+    "about_describe_tips": "开发者 · 创作者 · 终身学习者",
+    "about_exhibition": "",
+    "about_motto_main": [
+      {
+        "value": "前景可待，"
+      },
+      {
+        "value": "未来可期。"
+      }
+    ],
+    "about_motto_sub": "用代码和文字记录生活，分享知识。",
+    "about_personality": "INFJ-A",
+    "about_profile": [
+      {
+        "color": "#43a6c6",
+        "label": "姓名",
+        "value": "君の名は。"
+      },
+      {
+        "color": "#c69043",
+        "label": "生于",
+        "value": "2000"
+      },
+      {
+        "color": "#d44040",
+        "label": "故乡",
+        "value": "中国"
+      },
+      {
+        "color": "#b04fe6",
+        "label": "职业",
+        "value": "开发者"
+      },
+      {
+        "color": "#43c66f",
+        "label": "兴趣",
+        "value": "编程与创作"
+      },
+      {
+        "color": "#c643b3",
+        "label": "梦想",
+        "value": "创造价值"
+      }
+    ],
+    "about_socialize": [
+      {
+        "name": "GitHub",
+        "url": "https://github.com"
+      },
+      {
+        "name": "Email",
+        "url": "mailto:contact@example.com"
+      }
+    ],
+    "about_story": "欢迎来到我的个人博客！这里是我分享技术、记录生活、积累知识的小天地。希望这些内容能对你有所帮助。如果你有任何想法或建议，欢迎随时与我交流！",
+    "about_unions": [
+      {
+        "name": "BlogFinder",
+        "url": "https://bf.zzxworld.com"
+      },
+      {
+        "name": "个站商店",
+        "url": "https://storeweb.cn"
+      },
+      {
+        "name": "博友圈",
+        "url": "https://www.boyouquan.com"
+      }
+    ],
+    "about_versions": [
+      {
+        "name": "FlecBLOG",
+        "version": "x.y.z"
+      },
+      {
+        "name": "Vue",
+        "version": "3.5.0"
+      },
+      {
+        "name": "Go",
+        "version": "1.25.0"
+      }
+    ],
+    "announcement": "欢迎来到我的博客<br><strong>记录技术、生活与思考</strong><br><span style=\"color:#e03131\">内容持续更新中</span><br><a href=\"/about\">了解更多</a>",
+    "author_photo": "",
+    "background_image": "",
+    "donation_methods": [],
+    "font": "",
+    "footer_links": [
+      {
+        "name": "订阅",
+        "url": "/subscribe"
+      },
+      {
+        "name": "源码",
+        "url": "https://github.com/talen8/FlecBlog"
+      }
+    ],
+    "footer_social": [
+      {
+        "icon": "ri-mail-line",
+        "name": "Email",
+        "position": "left",
+        "url": ""
+      },
+      {
+        "icon": "ri-twitter-x-line",
+        "name": "X",
+        "position": "left",
+        "url": ""
+      },
+      {
+        "icon": "ri-github-line",
+        "name": "GitHub",
+        "position": "right",
+        "url": ""
+      },
+      {
+        "icon": "ri-bilibili-line",
+        "name": "Bilibili",
+        "position": "right",
+        "url": ""
+      }
+    ],
+    "home_layout": "waterfall",
+    "message_content": "时光流逝，岁月如歌。\r\n愿每句话都传递温暖。\r\n欢迎来到留言天地。\r\n分享你的心声与故事。\r\n生活中的点滴感悟。\r\n对未来的美好期许。\r\n让文字连接彼此心灵。\r\n期待你的真挚留言。",
+    "moments_size": 30,
+    "screenshot": "",
+    "sidebar_social": [
+      {
+        "icon": "ri-github-line",
+        "name": "GitHub",
+        "url": ""
+      },
+      {
+        "icon": "ri-mail-line",
+        "name": "Email",
+        "url": ""
+      },
+      {
+        "icon": "ri-twitter-x-line",
+        "name": "X",
+        "url": ""
+      }
+    ],
+    "slogan": "分享技术，记录生活",
+    "theme_dark_start": "06:00:00",
+    "theme_light_start": "06:00:00",
+    "typing_texts": [
+      {
+        "value": "前景可待 未来可期"
+      },
+      {
+        "value": "笔耕不辍 文思不竭"
+      },
+      {
+        "value": "笔学不怠 精进不休"
+      }
+    ],
+    "wechat_name": "",
+    "wechat_qrcode": ""
+  },
+  "menus": {
+    "aggregate": [
+      {
+        "id": 1,
+        "title": "个站",
+        "url": "",
+        "icon": "",
+        "sort": 1,
+        "is_enabled": true,
+        "children": [
+          {
+            "id": 2,
+            "title": "主页",
+            "url": "https://talen.top",
+            "icon": "ri-home-line",
+            "sort": 1,
+            "is_enabled": true,
+            "children": []
+          },
+          {
+            "id": 3,
+            "title": "博客",
+            "url": "https://blog.talen.top",
+            "icon": "ri-article-line",
+            "sort": 2,
+            "is_enabled": true,
+            "children": []
+          },
+          {
+            "id": 4,
+            "title": "GitHub",
+            "url": "https://github.com/talen8",
+            "icon": "ri-github-fill",
+            "sort": 3,
+            "is_enabled": true,
+            "children": []
+          }
+        ]
+      }
+    ],
+    "footer": [
+      {
+        "id": 12,
+        "title": "导航",
+        "url": "",
+        "icon": "",
+        "sort": 1,
+        "is_enabled": true,
+        "children": [
+          {
+            "id": 13,
+            "title": "文章归档",
+            "url": "/archive",
+            "icon": "",
+            "sort": 1,
+            "is_enabled": true,
+            "children": []
+          },
+          {
+            "id": 14,
+            "title": "文章分类",
+            "url": "/categories",
+            "icon": "",
+            "sort": 2,
+            "is_enabled": true,
+            "children": []
+          },
+          {
+            "id": 15,
+            "title": "文章标签",
+            "url": "/tags",
+            "icon": "",
+            "sort": 3,
+            "is_enabled": true,
+            "children": []
+          },
+          {
+            "id": 16,
+            "title": "即时动态",
+            "url": "/moment",
+            "icon": "",
+            "sort": 4,
+            "is_enabled": true,
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": 17,
+        "title": "直达",
+        "url": "",
+        "icon": "",
+        "sort": 2,
+        "is_enabled": true,
+        "children": [
+          {
+            "id": 18,
+            "title": "申请友链",
+            "url": "/friend#apply",
+            "icon": "",
+            "sort": 1,
+            "is_enabled": true,
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": 19,
+        "title": "服务",
+        "url": "",
+        "icon": "",
+        "sort": 3,
+        "is_enabled": true,
+        "children": [
+          {
+            "id": 20,
+            "title": "服务状态",
+            "url": "/status",
+            "icon": "",
+            "sort": 2,
+            "is_enabled": true,
+            "children": []
+          },
+          {
+            "id": 21,
+            "title": "反馈投诉",
+            "url": "/feedback",
+            "icon": "",
+            "sort": 3,
+            "is_enabled": true,
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": 22,
+        "title": "协议",
+        "url": "",
+        "icon": "",
+        "sort": 4,
+        "is_enabled": true,
+        "children": [
+          {
+            "id": 23,
+            "title": "Cookies",
+            "url": "/cookies",
+            "icon": "",
+            "sort": 1,
+            "is_enabled": true,
+            "children": []
+          },
+          {
+            "id": 24,
+            "title": "隐私协议",
+            "url": "/privacy",
+            "icon": "",
+            "sort": 2,
+            "is_enabled": true,
+            "children": []
+          },
+          {
+            "id": 25,
+            "title": "版权协议",
+            "url": "/copyright",
+            "icon": "",
+            "sort": 3,
+            "is_enabled": true,
+            "children": []
+          },
+          {
+            "id": 26,
+            "title": "提问须知",
+            "url": "/ask",
+            "icon": "",
+            "sort": 4,
+            "is_enabled": true,
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": 27,
+        "title": "支持",
+        "url": "",
+        "icon": "",
+        "sort": 5,
+        "is_enabled": true,
+        "children": [
+          {
+            "id": 28,
+            "title": "腾讯云",
+            "url": "https://cloud.tencent.com",
+            "icon": "",
+            "sort": 1,
+            "is_enabled": true,
+            "children": []
+          }
+        ]
+      }
+    ],
+    "navigation": [
+      {
+        "id": 5,
+        "title": "归档",
+        "url": "/archive",
+        "icon": "ri-archive-line",
+        "sort": 1,
+        "is_enabled": true,
+        "children": []
+      },
+      {
+        "id": 6,
+        "title": "分类",
+        "url": "/categories",
+        "icon": "ri-folder-line",
+        "sort": 2,
+        "is_enabled": true,
+        "children": []
+      },
+      {
+        "id": 7,
+        "title": "标签",
+        "url": "/tags",
+        "icon": "ri-price-tag-3-line",
+        "sort": 3,
+        "is_enabled": true,
+        "children": []
+      },
+      {
+        "id": 8,
+        "title": "友链",
+        "url": "/friend",
+        "icon": "ri-links-line",
+        "sort": 4,
+        "is_enabled": true,
+        "children": []
+      },
+      {
+        "id": 9,
+        "title": "动态",
+        "url": "/moment",
+        "icon": "ri-chat-3-line",
+        "sort": 5,
+        "is_enabled": true,
+        "children": []
+      },
+      {
+        "id": 10,
+        "title": "留言",
+        "url": "/message",
+        "icon": "ri-quill-pen-line",
+        "sort": 6,
+        "is_enabled": true,
+        "children": []
+      },
+      {
+        "id": 11,
+        "title": "关于",
+        "url": "/about",
+        "icon": "ri-user-line",
+        "sort": 7,
+        "is_enabled": true,
+        "children": []
+      }
+    ]
+  }
+}

@@ -2,7 +2,6 @@
 import { onMount, tick } from "svelte";
 import ClientPagination from "@/components/common/ClientPagination.svelte";
 import { formatTimezoneOffset } from "@/utils/date-utils";
-import { fetchMemos } from "@/utils/memos-adapter";
 import { registerDynamicGallery } from "./dynamic-gallery";
 import { registerDynamicInlineComments } from "./dynamic-inline-comments";
 
@@ -286,6 +285,7 @@ onMount(() => {
 	const load = async () => {
 		try {
 			if (memos?.enable) {
+				const { fetchMemos } = await import("@/utils/memos-adapter");
 				entries = await fetchMemos(memos.apiUrl, { parent: memos.parent });
 			} else {
 				const response = await fetch(source);

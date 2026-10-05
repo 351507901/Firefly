@@ -2,7 +2,6 @@
 import { processCoverImageSync, getApiUrlList } from "@/utils/image-utils";
 import CoverImage from "@/components/common/CoverImage.astro";
 import { getFileDirFromPath } from "@/utils/url-utils";
-import { siteConfig } from "@/config";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
 import { getSortedPosts } from "@/utils/content-utils";
@@ -30,8 +29,7 @@ const groups = Array.from(grouped.entries())
 	.sort((a, b) => b.year - a.year);
 
 // 初始折叠规则：foldArticle 非 false 且多于一年时，除首年外全部折叠
-const foldArticle = siteConfig.foldArticle !== false;
-const collapseAllButFirst = foldArticle && groups.length > 1;
+const collapseAllButFirst = false;
 
 function formatDate(date: Date) {
 	const month = (date.getMonth() + 1).toString().padStart(2, "0");
@@ -59,7 +57,7 @@ const foldOnFilter = collapseAllButFirst;
 >
   <header class="archive-heading">
     <h2>{i18n(I18nKey.archive)}</h2>
-    <p class="text-50"><span id="archive-total-count">{posts.length}</span> <span>{i18n(I18nKey.postsCount)}</span></p>
+    <p class="text-50"><i class="ri-file-list-line" aria-hidden="true" /><span>共 <span id="archive-total-count">{posts.length}</span> 篇文章</span></p>
   </header>
   {/* 筛选头部：默认隐藏，客户端在有筛选时填充并显示 */}
   <div id="archive-filter-header" class="mb-5 hidden">
@@ -96,7 +94,7 @@ const foldOnFilter = collapseAllButFirst;
               aria-label={post.data.title}
               class="archive-post"
               data-tags={JSON.stringify(post.data.tags || [])}
-              data-category={post.data.category || ""}
+              data-category={post.data.category || ""} data-month={post.data.published.toISOString().slice(0, 7)}
             >
               <div class="archive-thumbnail">
                 {post.cover ? (
@@ -107,7 +105,7 @@ const foldOnFilter = collapseAllButFirst;
               </div>
               <div class="archive-post-info">
                 <time datetime={post.data.published.toISOString()} class="archive-date text-50">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 11h18"/></svg>
+                  <i class="ri-calendar-2-fill" aria-hidden="true" />
                   {formatDate(post.data.published)}
                 </time>
                 <span class="archive-post-title text-75">{post.data.title}</span>
@@ -165,6 +163,8 @@ const foldOnFilter = collapseAllButFirst;
       const tags = params.has("tag") ? params.getAll("tag") : [];
       const categories = params.has("category") ? params.getAll("category") : [];
       const uncategorized = params.get("uncategorized");
+      const month = params.get("month");
+      if (month) { this.querySelectorAll(".archive-post").forEach(row => { row.hidden = row.dataset.month !== month; }); this.querySelectorAll(".archive-year-block").forEach(block => { block.hidden = !block.querySelector(".archive-post:not([hidden])"); }); }
 
       const hasFilter = tags.length > 0 || categories.length > 0 || !!uncategorized;
 
@@ -356,3 +356,4 @@ const foldOnFilter = collapseAllButFirst;
     customElements.define("archive-panel", ArchivePanel);
   }
 </script>
+

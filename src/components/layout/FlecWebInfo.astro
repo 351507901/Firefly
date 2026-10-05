@@ -1,0 +1,30 @@
+---
+import { siteConfig } from "@/config";
+import { getSortedPosts } from "@/utils/content-utils";
+
+const posts = await getSortedPosts();
+// Keep the existing SiteStats counting convention: Chinese and Latin characters,
+// excluding fenced code and inline code.
+const totalWords = posts.reduce((total, post) => {
+	const text = (post.body || "").replace(/```[\s\S]*?```/g, "").replace(/`[^`]*`/g, "");
+	return total + (text.match(/[\u4e00-\u9fa5a-zA-Z]/g)?.length || 0);
+}, 0);
+const words = totalWords >= 1000 ? `${Math.round(totalWords / 100) / 10}k` : String(totalWords);
+const startDate = siteConfig.siteStartDate || "2025-01-01";
+const runningDays = Math.max(0, Math.floor((Date.now() - new Date(`${startDate}T00:00:00+08:00`).getTime()) / 86400000));
+---
+<section class="flec-card flec-webinfo">
+  <h2 class="flec-widget-title"><i class="ri-line-chart-fill" aria-hidden="true" /> 网站信息</h2>
+  <div class="flec-webinfo-row"><span>本站总字数：</span><span title={`${totalWords} 字`}>{words}</span></div>
+  <div class="flec-webinfo-row"><span>网站运行天数：</span><flec-running-days data-start-date={startDate}>{runningDays}</flec-running-days></div>
+</section>
+<script>
+  if (!customElements.get("flec-running-days")) {
+    customElements.define("flec-running-days", class extends HTMLElement {
+      connectedCallback() {
+        const start = new Date(`${this.dataset.startDate}T00:00:00+08:00`).getTime();
+        if (Number.isFinite(start)) this.textContent = String(Math.max(0, Math.floor((Date.now() - start) / 86400000)));
+      }
+    });
+  }
+</script>

@@ -1,0 +1,77 @@
+---
+import type { MarkdownHeading } from "astro";
+import { Icon } from "astro-icon/components";
+import FlecSidebar from "./FlecSidebar.astro";
+import CoverImage from "@/components/common/CoverImage.astro";
+import { siteConfig, profileConfig } from "@/config";
+import flecTheme from "@/config/flecTheme.json";
+import { getSortedPosts } from "@/utils/content-utils";
+import { url, getFileDirFromPath } from "@/utils/url-utils";
+import { processCoverImageSync, getApiUrlList } from "@/utils/image-utils";
+interface Props { title?: string; postSlug?: string; postCoverImage?: string; headings?: MarkdownHeading[]; encrypted?: boolean; bannerPostMeta?: { title: string; description?: string; published: Date; updated?: Date; words?: number; minutes?: number; }; }
+const { title, postSlug, headings, encrypted, bannerPostMeta } = Astro.props;
+const isHome = /^\/(?:\d+\/?)?$/.test(Astro.url.pathname.replace(import.meta.env.BASE_URL.replace(/\/$/,""), ""));
+const menus = flecTheme.menus.navigation.map(menu => ({ ...menu, url: ({"/friend":"/friends/","/moment":"/dynamic/","/message":"/guestbook/"} as Record<string,string>)[menu.url] || `${menu.url}/` }));
+menus.splice(5, 0, { id: 100, title: "项目", url: "/projects/", icon: "", sort: 6, is_enabled: true, children: [] });
+const allPosts = postSlug ? await getSortedPosts() : [];
+const post = allPosts.find(p => p.id === postSlug || p.id.replace(/\.(md|mdx)$/, "") === postSlug);
+const postCover = post ? processCoverImageSync(post.data.image, post.id) : undefined;
+const typingTexts = flecTheme.config.typing_texts.map(item => item.value);
+const fullWidth = ["/categories/", "/tags/", "/about/", "/subscribe/", "/friends/", "/dynamic/", "/guestbook/"].includes(Astro.url.pathname);
+---
+<div id="flec-page" data-home={isHome} data-post={!!postSlug} data-full-width={fullWidth}>
+  <nav class:list={["flec-navbar", { "no-header": !isHome && !postSlug }]} aria-label="主导航">
+    <div class="flec-nav-left"><details class="flec-aggregate"><summary aria-label="更多页面">▦</summary><div class="flec-dropdown">{[{title:"首页",url:"/"},{title:"项目",url:"/projects/"},{title:"相册",url:"/gallery/"},{title:"书签",url:"/booknav/"},{title:"打赏",url:"/sponsor/"},{title:"搜索",url:"/search/"}].map(link => <a href={url(link.url)}>{link.title}</a>)}</div></details><a class="flec-logo" href={url("/")}>{siteConfig.title}</a></div>
+    <div class="flec-nav-menu">{menus.map(menu => <a href={url(menu.url)} aria-current={Astro.url.pathname.startsWith(menu.url) ? "page" : undefined}>{menu.title}</a>)}</div>
+    <div class="flec-nav-buttons"><a href={url("/search/")} aria-label="搜索"><Icon name="material-symbols:search" /></a><button type="button" data-flec-theme aria-label="切换明暗主题"><Icon name="material-symbols:dark-mode-outline" /></button><button type="button" data-flec-menu aria-label="打开导航菜单" aria-expanded="false"><Icon name="material-symbols:menu" /></button></div>
+  </nav>
+  {isHome && <header class="flec-home-header"><div class="flec-site-info"><h1>{siteConfig.title}</h1><div class="flec-site-subtitle"><span data-flec-typing data-texts={JSON.stringify(typingTexts)}>{typingTexts[0]}</span><span class="flec-cursor">|</span></div></div><a href="#flec-content" class="flec-scroll-indicator" aria-label="阅读文章">⌄</a></header>}
+  {postSlug && <header class="flec-post-header">{post && postCover && <div class="flec-header-cover"><CoverImage src={postCover} basePath={getFileDirFromPath(post.filePath || "")} alt="" loading="eager" apiUrls={getApiUrlList(post.data.image,post.id)} /></div>}<div class="flec-post-heading"><h1>{bannerPostMeta?.title || title}</h1><p>▣ 发表于 {bannerPostMeta?.published.toISOString().slice(0,10)}{bannerPostMeta?.updated && `　↻ 更新于 ${bannerPostMeta.updated.toISOString().slice(0,10)}`}{post?.data.category && `　▤ ${post.data.category}`}</p><p>▤ 总字数：{bannerPostMeta?.words ?? ""}　◴ 阅读时长：{bannerPostMeta?.minutes ?? ""}分钟</p></div></header>}
+  <main id="flec-content" class="flec-page-main">
+    <div class="flec-main-layout">
+      <div id="swup-container" class="flec-main-content">
+        {!isHome && !postSlug && !fullWidth && Astro.url.pathname !== "/archive/" && <h1 class="sr-only">{title}</h1>}
+        <slot />
+      </div>
+      {!fullWidth && <FlecSidebar headings={headings} encrypted={encrypted} />}
+    </div>
+  </main>
+  <footer class="flec-footer"><div class="flec-footer-contact">{profileConfig.links.slice(0,2).map(link => <a href={link.url} aria-label={link.name}><Icon name={link.icon}/></a>)}<a href="#" class="flec-footer-logo" aria-label="返回顶部"><img src="/flec/footer-logo.svg" alt="" width="80" height="80" /></a>{profileConfig.links.slice(2).map(link => <a href={link.url} aria-label={link.name}><Icon name={link.icon}/></a>)}</div>
+    <div class="flec-footer-groups"><div><h2>导航</h2>{menus.slice(0,5).map(menu => <a href={url(menu.url)}>{menu.title}</a>)}</div><div><h2>直达</h2><a href={url("/friends/")}>申请友链</a><a href={url("/guestbook/")}>留言板</a></div><div><h2>我的</h2><a href={url("/projects/")}>项目</a><a href={url("/gallery/")}>相册</a><a href={url("/booknav/")}>书签导航</a></div><div><h2>订阅</h2><a href={url("/rss.xml")}>RSS</a><a href={url("/atom.xml")}>Atom</a></div><div><h2>支持</h2><a href={url("/sponsor/")}>打赏</a><a href="https://github.com/talen8/FlecBlog">FlecBlog</a><a href="https://github.com/CuteLeaf/Firefly">Firefly</a></div><div><h2>关于</h2><a href={url("/about/")}>关于本站</a><a href={url("/search/")}>站内搜索</a></div></div>
+    <div class="flec-copyright">© {new Date().getFullYear()} {profileConfig.name} · {siteConfig.title}<br/>Powered by Astro · Design by <a href="https://github.com/talen8/FlecBlog">FlecBlog</a></div>
+  </footer>
+  <div class="flec-float-buttons"><button type="button" data-flec-theme aria-label="切换明暗主题">◐</button><a href="#" aria-label="返回顶部">↑</a></div>
+</div>
+<script>
+import { initImageLoadFadeIn } from "@/utils/lqip-utils";
+let typingTimer: ReturnType<typeof setTimeout>;
+let waterfallObserver: ResizeObserver | undefined;
+function initFlec() {
+  initImageLoadFadeIn();
+  waterfallObserver?.disconnect();
+  const waterfall = document.querySelector<HTMLElement>(".flec-waterfall");
+  if (waterfall) {
+    const cards = Array.from(waterfall.querySelectorAll<HTMLElement>(".flec-post-card"));
+    const arrange = () => { for (const card of cards) card.style.gridRowEnd = `span ${Math.ceil((card.getBoundingClientRect().height + 16) / 8)}`; waterfall.classList.add("masonry-ready"); };
+    arrange(); waterfallObserver = new ResizeObserver(arrange); cards.forEach(card => waterfallObserver?.observe(card));
+  }
+  clearTimeout(typingTimer);
+  const nav = document.querySelector<HTMLElement>(".flec-navbar");
+  const updateNav = () => nav?.classList.toggle("is-fixed", window.scrollY > 0);
+  updateNav();
+  window.onscroll = updateNav;
+  document.querySelectorAll<HTMLButtonElement>("[data-flec-theme]").forEach(button => { button.onclick = () => { const dark = document.documentElement.dataset.theme !== "dark"; document.documentElement.dataset.theme = dark ? "dark" : "light"; document.documentElement.classList.toggle("dark",dark); try { localStorage.setItem("theme",dark ? "dark" : "light"); } catch {} }; });
+  const toggle = document.querySelector<HTMLButtonElement>("[data-flec-menu]");
+  if (toggle) toggle.onclick = () => { const open = nav?.classList.toggle("menu-open") ?? false; toggle.setAttribute("aria-expanded",String(open)); };
+  const subtitle = document.querySelector<HTMLElement>("[data-flec-typing]");
+  if (subtitle && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    const texts: string[] = JSON.parse(subtitle.dataset.texts || "[]");
+    let index = 0; let character = 0; let deleting = false;
+    function type() { if (!subtitle || !texts.length) return; const text = texts[index]; character += deleting ? -1 : 1; subtitle.textContent = text.slice(0,character); let delay = deleting ? 80 : 150; if (character >= text.length) { deleting = true; delay = 2000; } else if (character <= 0) { deleting = false; index = (index+1)%texts.length; } typingTimer = setTimeout(type,delay); }
+    subtitle.textContent = ""; typingTimer = setTimeout(type,500);
+  }
+}
+initFlec();
+document.addEventListener("swup:page:view",initFlec);
+</script>
+

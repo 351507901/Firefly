@@ -122,14 +122,7 @@ export default defineConfig({
 			animationClass: "transition-swup-", // see https://swup.js.org/options/#animationselector
 			// the default value `transition-` cause transition delay
 			// when the Tailwind class `transition-all` is used
-			containers: [
-				"#banner-overlay-container",
-				"#banner-dim-container",
-				"#swup-container",
-				"#left-sidebar-dynamic",
-				"#right-sidebar-dynamic",
-				"#floating-toc-wrapper",
-			],
+			containers: ["#flec-page"],
 			smoothScrolling: false,
 			cache: true,
 			preload: {
@@ -352,6 +345,10 @@ export default defineConfig({
 	},
 	vite: {
 		plugins: [tailwindcss()],
+		// Pre-bundle feed dependencies before navigation loads the Svelte island.
+		optimizeDeps: {
+			include: ["marked", "@fancyapps/ui"],
+		},
 		server: {
 			watch: {
 				ignored: ["**/package/**", "**/Firefly-docs/**"],

@@ -1,0 +1,12 @@
+---
+import MainGridLayout from "@/layouts/MainGridLayout.astro";
+import { siteConfig } from "@/config";
+const feeds = [{title:"RSS 订阅",type:"RSS 2.0",path:"/rss.xml"},{title:"Atom 订阅",type:"Atom",path:"/atom.xml"}];
+---
+<MainGridLayout title="订阅本站">
+ <section class="flec-card flec-index-page flec-subscribe-page"><h1>订阅本站</h1><p>选择您喜欢的订阅方式，随时获取最新更新</p><div class="flec-subscribe-options">{feeds.map(feed => <section><span class="flec-feed-icon">◉</span><h2>{feed.title}</h2><p>在阅读器中订阅，第一时间获取最新文章</p><code>{new URL(feed.path,siteConfig.site_url).href}</code><a class="flec-subscribe" href={feed.path}>查看 {feed.type} 订阅源</a><button type="button" data-copy-feed={new URL(feed.path,siteConfig.site_url).href}>复制订阅地址</button></section>)}</div><p role="status" id="feed-copy-status"></p></section>
+</MainGridLayout>
+<script>
+function initCopy() { document.querySelectorAll<HTMLButtonElement>("[data-copy-feed]").forEach(button => { button.onclick = async () => { const status = document.getElementById("feed-copy-status"); try { await navigator.clipboard.writeText(button.dataset.copyFeed || ""); if(status) status.textContent = "订阅地址已复制"; } catch { if(status) status.textContent = "请选中上方地址手动复制"; } }; }); }
+initCopy();document.addEventListener("swup:page:view",initCopy);
+</script>

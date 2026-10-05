@@ -1,0 +1,29 @@
+---
+import type { CollectionEntry } from "astro:content";
+import { render } from "astro:content";
+import CoverImage from "@/components/common/CoverImage.astro";
+import { processCoverImageSync, getApiUrlList } from "@/utils/image-utils";
+import { getPostUrlBySlug, getFileDirFromPath, getCategoryUrl, getTagUrl } from "@/utils/url-utils";
+interface Props { entry: CollectionEntry<"posts">; eager?: boolean; }
+const { entry, eager = false } = Astro.props;
+const { data } = entry;
+const cover = processCoverImageSync(data.image, entry.id);
+const { remarkPluginFrontmatter } = await render(entry);
+const summary = data.description || remarkPluginFrontmatter.excerpt || "";
+---
+<article class="flec-post-card">
+  {data.pinned && <span class="flec-badge">置顶</span>}
+  {cover && <a href={getPostUrlBySlug(entry.id)} class="flec-post-cover" aria-label={data.title}>
+    <CoverImage src={cover} alt={data.title} basePath={getFileDirFromPath(entry.filePath || "")} apiUrls={getApiUrlList(data.image, entry.id)} loading={eager ? "eager" : "lazy"} />
+  </a>}
+  <div class="flec-post-info">
+    <a class="flec-post-title" href={getPostUrlBySlug(entry.id)}>{data.title}</a>
+    <div class="flec-post-meta">
+      <span><i class="ri-calendar-2-fill" aria-hidden="true" /> 发表于 <time datetime={data.published.toISOString()}>{data.published.toISOString().slice(0,10)}</time></span>
+      {data.category && <a href={getCategoryUrl(data.category)}><i class="ri-inbox-2-fill" aria-hidden="true" /> {data.category}</a>}
+      {data.tags.slice(0, 2).map(tag => <a href={getTagUrl(tag)}><i class="ri-price-tag-3-fill" aria-hidden="true" /> {tag}</a>)}
+      {data.password && <span>▣ 加密文章</span>}
+    </div>
+    <p class="flec-post-description">{summary}</p>
+  </div>
+</article>
