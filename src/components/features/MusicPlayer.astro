@@ -130,7 +130,7 @@ const widgetId =
     <div class="overflow-hidden min-h-0">
             <div class="mt-2 pt-2 border-t border-neutral-100 dark:border-white/5 mx-1">
             <div class="flex gap-2 mb-2" role="group" aria-label="音乐分类">
-                {["中文", "日语", "纯音乐"].map((category) => (
+                {["纯音乐", "中文", "日语"].map((category) => (
                     <button type="button" data-music-category={category} aria-pressed={category === "中文" ? "true" : "false"} class="music-category flex-1 rounded-md py-1.5 text-xs font-medium transition-colors text-neutral-500 dark:text-neutral-400 hover:bg-(--primary)/10 aria-pressed:bg-(--primary)/15 aria-pressed:text-(--primary)">{category}</button>
                 ))}
             </div>

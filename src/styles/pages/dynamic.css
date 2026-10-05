@@ -1,4 +1,4 @@
-/* 动态页专属：筛选栏、动态流与条目、图集查看器、内联评论、空态 */
+/* 动态页专属：动态流与条目、图集查看器、内联评论、空态 */
 
 dynamic-feed {
 	display: block;
@@ -772,5 +772,146 @@ body.wallpaper-transparent .page-year-select select option {
 		width: 3.25rem;
 		height: 3.25rem;
 		flex-basis: 3.25rem;
+	}
+}
+
+/* FlecBlog 动态：外层磨砂面板，内层独立瀑布流卡片。 */
+.flec-site .flec-dynamics {
+	padding: 40px;
+}
+
+.flec-dynamics-heading h2 {
+	margin: 0 0 12px;
+	color: var(--font-color);
+	font-size: 1.8rem;
+	font-weight: 700;
+}
+
+.flec-dynamics .page-feed {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	grid-auto-rows: 1px;
+	gap: 15px;
+	align-items: start;
+}
+
+.flec-site .flec-dynamics .page-entry {
+	display: inline-block;
+	width: 100%;
+	margin: 0;
+	padding: 0;
+	break-inside: avoid;
+	overflow: hidden;
+	border-radius: 8px !important;
+	background: #fff !important;
+	box-shadow: 0 4px 14px rgb(0 0 0 / 6%);
+}
+
+.flec-dynamics .page-entry-header {
+	padding: 13px 16px;
+	border-bottom: 1px solid rgb(0 0 0 / 6%);
+}
+
+.flec-dynamics .page-avatar {
+	width: 50px;
+	height: 50px;
+	flex-basis: 50px;
+	border-radius: 8px;
+}
+
+.flec-dynamics .page-identity {
+	gap: 6px;
+}
+
+.flec-dynamics .page-author,
+.flec-dynamics .page-content {
+	color: var(--font-color);
+}
+
+.flec-dynamics .page-time {
+	color: var(--font-color);
+	font-size: 0.85rem;
+}
+
+.flec-dynamics .page-content {
+	margin: 0;
+	padding: 16px;
+	font-size: 1rem;
+	line-height: 1.75;
+}
+
+.flec-dynamics .page-content p {
+	margin-block: 0 16px;
+}
+
+.flec-dynamics .page-content > :last-child {
+	margin-bottom: 0;
+}
+
+.flec-dynamics .page-gallery {
+	width: calc(100% - 32px);
+	margin: 0 16px 16px;
+}
+
+.flec-dynamics .page-entry-footer {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	min-height: 52px;
+	padding: 10px 16px;
+	border-top: 1px solid rgb(0 0 0 / 6%);
+}
+
+.flec-dynamics .page-entry-link {
+	display: inline-flex;
+	margin-left: auto;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	color: var(--font-color);
+	font-size: 1.1rem;
+}
+
+.flec-dynamics .page-entry-link:hover {
+	color: var(--primary);
+}
+
+.flec-dynamics .page-inline-comments {
+	margin: 0;
+	padding: 8px 16px;
+}
+
+.flec-site .flec-dynamics .page-loading,
+.flec-site .flec-dynamics .page-empty,
+.flec-site .flec-dynamics .page-no-results {
+	background: transparent !important;
+	box-shadow: none;
+}
+
+:root[data-theme="dark"] .flec-dynamics .page-entry {
+	background: #252525 !important;
+}
+
+:root[data-theme="dark"] .flec-dynamics .page-entry-header,
+:root[data-theme="dark"] .flec-dynamics .page-entry-footer {
+	border-color: rgb(255 255 255 / 10%);
+}
+
+@media (max-width: 1024px) {
+	.flec-site .flec-dynamics {
+		padding: 28px;
+	}
+	.flec-dynamics .page-feed {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+@media (max-width: 640px) {
+	.flec-site .flec-dynamics {
+		padding: 18px;
+	}
+	.flec-dynamics .page-feed {
+		grid-template-columns: minmax(0, 1fr);
 	}
 }

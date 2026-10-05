@@ -62,6 +62,20 @@ let template: HTMLTemplateElement | null = null;
 let searchInput: HTMLInputElement | null = null;
 let yearSelect: HTMLSelectElement | null = null;
 let restoreAnchorAfterRender = false;
+let masonryObserver: ResizeObserver | null = null;
+
+function layoutCards() {
+	if (!list) return;
+	const styles = getComputedStyle(list);
+	const gap = Number.parseFloat(styles.rowGap) || 0;
+	const row = Number.parseFloat(styles.gridAutoRows) || 1;
+	for (const card of list.querySelectorAll<HTMLElement>("[data-dynamic-entry]")) {
+		const article = card.querySelector("article");
+		if (article) {
+			card.style.gridRowEnd = `span ${Math.ceil((article.getBoundingClientRect().height + gap) / (row + gap))}`;
+		}
+	}
+}
 
 const pageEntries = $derived(
 	filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage),
@@ -181,6 +195,13 @@ function createItem(entry: DynamicData) {
 			).format(date);
 			time.textContent += ` ${formatTimezoneOffset(timezone, date)}`;
 		}
+		time.title = time.textContent || "";
+		const external = source.startsWith("http") || memos?.enable;
+		const year = external ? date.getFullYear() : date.getUTCFullYear();
+		const month = (external ? date.getMonth() : date.getUTCMonth()) + 1;
+		const day = external ? date.getDate() : date.getUTCDate();
+		time.textContent = `${year === new Date().getFullYear() ? "" : `${year}年`}${month}月${day}日`;
+
 	}
 	const location = root.querySelector<HTMLElement>("[data-dynamic-location]");
 	if (location) {
@@ -226,6 +247,7 @@ function createItem(entry: DynamicData) {
 	const comments = root.querySelector<HTMLElement>("dynamic-inline-comments");
 	if (comments) {
 		if (showComments) {
+			root.querySelector(".page-entry-link")?.remove();
 			comments.dataset.src = `/dynamic/comments/?path=${encodeURIComponent(
 				`/dynamic/${entry.id}/`,
 			)}`;
@@ -240,10 +262,16 @@ async function renderItems(items: DynamicData[]) {
 	await tick();
 	if (!list || !template) return;
 	list.replaceChildren();
+	masonryObserver?.disconnect();
+	masonryObserver?.observe(list);
 	for (const entry of items) {
 		const item = createItem(entry);
 		if (item) list.append(item);
 	}
+	for (const article of list.querySelectorAll("article")) {
+		masonryObserver?.observe(article);
+	}
+	layoutCards();
 	if (restoreAnchorAfterRender) {
 		restoreAnchorAfterRender = false;
 		const target = document.getElementById(
@@ -267,6 +295,7 @@ $effect(() => {
 });
 
 onMount(() => {
+	masonryObserver = new ResizeObserver(layoutCards);
 	registerDynamicGallery();
 	registerDynamicInlineComments();
 	const page = list.closest(".page-shell");
@@ -320,6 +349,7 @@ onMount(() => {
 	void load();
 
 	return () => {
+		masonryObserver?.disconnect();
 		searchInput?.removeEventListener("input", filter);
 		yearSelect?.removeEventListener("change", filter);
 	};

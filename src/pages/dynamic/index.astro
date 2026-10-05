@@ -1,5 +1,4 @@
 ---
-import { Icon } from "astro-icon/components";
 import DynamicFeed from "@/components/pages/dynamic/DynamicFeed.svelte";
 import DynamicItemTemplate from "@/components/pages/dynamic/DynamicItemTemplate.astro";
 import { commentConfig, dynamicConfig, siteConfig } from "@/config";
@@ -30,43 +29,10 @@ const memos = dynamicConfig.memos;
 ---
 
 <MainGridLayout title={title} description={description}>
-	<section class="page-shell" aria-labelledby="dynamic-page-title">
+	<section class="page-shell flec-dynamics card-base" aria-labelledby="dynamic-page-title">
 		<div>
-			<header class="page-header card-base">
-				<div class="page-heading">
-					<div class="page-icon" aria-hidden="true">
-						<Icon name="material-symbols:forum-rounded" />
-					</div>
-					<div>
-						<h2 id="dynamic-page-title">{title}</h2>
-						{description && <p>{description}</p>}
-					</div>
-				</div>
-				<div
-					class="page-count"
-					aria-label={i18n(I18nKey.dynamic)}
-				>
-					<Icon name="material-symbols:dynamic-feed-rounded" />
-					<strong data-dynamic-page-count>0</strong>
-					<span>{i18n(I18nKey.dynamic)}</span>
-				</div>
-				<div class="page-filter">
-					<label class="page-search">
-						<Icon name="material-symbols:search-rounded" />
-						<input
-							type="search"
-							data-dynamic-search
-							placeholder={i18n(I18nKey.dynamicSearch)}
-						/>
-					</label>
-					<label class="page-year-select">
-						<Icon name="material-symbols:calendar-month-rounded" />
-						<select data-year-select aria-label={i18n(I18nKey.year)}>
-							<option value="all">{i18n(I18nKey.dynamicAllYears)}</option>
-						</select>
-						<Icon name="material-symbols:arrow-drop-down-rounded" />
-					</label>
-				</div>
+			<header class="flec-dynamics-heading">
+				<h2 id="dynamic-page-title">{title}</h2>
 			</header>
 
 			<DynamicFeed
