@@ -273,9 +273,7 @@ const managerConfigStr = JSON.stringify({
 
     // ── Playback controls ────────────────────────────────────
     function togglePlay() {
-        var indices = categoryIndices();
-        if (!indices.length) return;
-        if (indices.indexOf(state.currentIndex) === -1) { loadTrack(indices[0], true); return; }
+        if (!state.playlist.length) return;
         if (audio.paused) {
             audio.play().then(function () {
                 state.isPlaying = true;
@@ -291,9 +289,12 @@ const managerConfigStr = JSON.stringify({
         }
     }
 
-    function categoryIndices() {
+    function categoryIndices(category) {
+        // 浏览分类与播放队列分开；上一首、下一首仍沿用当前歌曲的分类。
+        var track = state.initialized ? state.playlist[state.currentIndex] : null;
+        var playbackCategory = category || (track ? (track.category || '中文') : state.category);
         return state.playlist.reduce(function (indices, track, index) {
-            if ((track.category || '中文') === state.category) indices.push(index);
+            if ((track.category || '中文') === playbackCategory) indices.push(index);
             return indices;
         }, []);
     }
@@ -301,17 +302,7 @@ const managerConfigStr = JSON.stringify({
     function setCategory(category) {
         if (state.category === category) return;
         state.category = category;
-        var indices = categoryIndices();
         emit('fm:category', { category: category });
-        if (indices.indexOf(state.currentIndex) === -1) {
-            var wasPlaying = state.isPlaying;
-            if (indices.length) loadTrack(indices[0], wasPlaying);
-            else {
-                audio.pause();
-                state.isPlaying = false;
-                emit('fm:play-state', { isPlaying: false });
-            }
-        }
     }
 
     function playNext(auto) {
