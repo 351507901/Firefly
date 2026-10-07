@@ -10,7 +10,6 @@ export function registerDynamicGallery(): void {
 	if (customElements.get("dynamic-gallery")) return;
 
 	class DynamicGallery extends HTMLElement {
-		private activeIndex = 0;
 		private images: GalleryImage[] = [];
 
 		connectedCallback() {
@@ -27,8 +26,6 @@ export function registerDynamicGallery(): void {
 				src: element.currentSrc || element.src,
 			}));
 			this.buildGrid();
-			this.buildThumbnails();
-			this.bindControls();
 			this.dataset.ready = "true";
 			this.hidden = false;
 			document.dispatchEvent(new CustomEvent("dynamic-gallery:ready"));
@@ -50,12 +47,7 @@ export function registerDynamicGallery(): void {
 						String(index + 1),
 					),
 				);
-				// 只有一张图时，点击直接打开大图查看
-				if (this.images.length === 1) {
-					button.addEventListener("click", () => this.openLightbox(0));
-				} else {
-					button.addEventListener("click", () => this.open(index));
-				}
+				button.addEventListener("click", () => this.openLightbox(index));
 				const container =
 					element.closest<HTMLElement>("center") ??
 					element.closest<HTMLElement>("figure") ??
@@ -80,119 +72,18 @@ export function registerDynamicGallery(): void {
 			}
 		}
 
-		private buildThumbnails() {
-			const thumbnails = this.querySelector<HTMLElement>(
-				"[data-gallery-thumbnails]",
-			);
-			if (!thumbnails) return;
-			this.images.forEach(({ element, alt }, index) => {
-				const button = document.createElement("button");
-				button.type = "button";
-				button.className = "page-gallery-thumbnail";
-				button.dataset.index = String(index);
-				button.setAttribute(
-					"aria-label",
-					(this.dataset.selectImage || "Select image {index}").replace(
-						"{index}",
-						String(index + 1),
-					),
-				);
-				button.addEventListener("click", () => this.select(index));
-				const thumbnail = element.cloneNode(true) as HTMLImageElement;
-				thumbnail.alt = alt;
-				thumbnail.removeAttribute("id");
-				button.append(thumbnail);
-				thumbnails.append(button);
-			});
-		}
-
-		private bindControls() {
-			this.querySelector("[data-gallery-collapse]")?.addEventListener(
-				"click",
-				() => this.collapse(),
-			);
-			this.querySelector("[data-gallery-prev]")?.addEventListener("click", () =>
-				this.select(this.activeIndex - 1),
-			);
-			this.querySelector("[data-gallery-next]")?.addEventListener("click", () =>
-				this.select(this.activeIndex + 1),
-			);
-			this.querySelector("[data-gallery-lightbox]")?.addEventListener(
-				"click",
-				(event) => {
-					event.preventDefault();
-					const Fancybox = FancyboxModule.Fancybox;
-					Fancybox.show(
-						this.images.map((image) => ({
-							src: image.src,
-							type: "image",
-						})),
-						{
-							startIndex: this.activeIndex,
-						},
-					);
-				},
-			);
-		}
-
-		private open(index: number) {
-			const grid = this.querySelector<HTMLElement>("[data-gallery-grid]");
-			const viewer = this.querySelector<HTMLElement>("[data-gallery-viewer]");
-			if (!grid || !viewer) return;
-			grid.hidden = true;
-			viewer.hidden = false;
-			this.select(index);
-		}
-
-		private collapse() {
-			const grid = this.querySelector<HTMLElement>("[data-gallery-grid]");
-			const viewer = this.querySelector<HTMLElement>("[data-gallery-viewer]");
-			if (!grid || !viewer) return;
-			grid.hidden = false;
-			viewer.hidden = true;
-		}
-
 		private openLightbox(index: number) {
 			const Fancybox = FancyboxModule.Fancybox;
 			Fancybox.show(
 				this.images.map((image) => ({
 					src: image.src,
+					alt: image.alt,
 					type: "image",
 				})),
 				{ startIndex: index },
 			);
 		}
 
-		private select(index: number) {
-			this.activeIndex = (index + this.images.length) % this.images.length;
-			const counter = this.querySelector<HTMLElement>("[data-gallery-counter]");
-			if (counter)
-				counter.textContent = `${this.activeIndex + 1} / ${this.images.length}`;
-			const image = this.images[this.activeIndex];
-			const main = this.querySelector<HTMLImageElement>("[data-gallery-main]");
-			if (!main) return;
-			main.src = image.src;
-			main.alt = image.alt;
-			main.dataset.galleryIndex = String(this.activeIndex);
-			this.querySelector<HTMLElement>("[data-gallery-lightbox]")?.setAttribute(
-				"data-src",
-				image.src,
-			);
-			this.querySelectorAll<HTMLElement>(
-				"[data-gallery-thumbnails] [data-index]",
-			).forEach((thumbnail) => {
-				thumbnail.dataset.active = String(
-					Number(thumbnail.dataset.index) === this.activeIndex,
-				);
-			});
-			this.querySelector<HTMLElement>(
-				`[data-gallery-thumbnails] [data-index="${this.activeIndex}"]`,
-			)?.scrollIntoView({
-				behavior: "smooth",
-				block: "nearest",
-				inline: "center",
-			});
-		}
 	}
 
 	customElements.define("dynamic-gallery", DynamicGallery);
